@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Piket PMR</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #D32F2F;
+            --secondary: #FFEBEE;
+            --dark: #1A237E;
+            --light: #E3F2FD;
+            --accent: #0288D1;
+            --white: #FFFFFF;
+            --text: #212121;
+            --success: #388E3C;
+            --warning: #F57C00;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+            color: #333;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .logo {
+            height: 80px;
+            margin-bottom: 15px;
+        }
+
+        .admin-login {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .admin-btn {
+            background-color: var(--warning);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .admin-btn:hover {
+            background-color: #E65100;
+            transform: translateY(-2px);
+        }
+
+        .admin-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            z-index: 1001;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .admin-panel h2 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .admin-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .admin-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .schedule-container {
+            overflow-x: auto;
+            transition: all 0.3s ease;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: var(--dark);
+            color: white;
+            font-weight: 500;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        tr:nth-child(even) {
+            background-color: var(--secondary);
+        }
+
+        tr:hover td {
+            background-color: var(--light);
+        }
+
+        .shift-header {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .anggota-item {
+            margin: 6px 0;
+            padding: 10px 15px;
+            background-color: var(--white);
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+            font-size: 14px;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .anggota-item:hover {
+            transform: translateX(3px);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            background-color: var(--light);
+        }
+        
+        .anggota-item.selected {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .members-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .member-list-item {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .member-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .member-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-info {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            margin-left: 5px;
+            font-size: 14px;
+        }
+
+        .admin-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+        }
+
+        .admin-section h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .assign-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .history-list {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .history-item {
+            padding: 5px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .history-item:hover {
+            background-color: var(--light);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Struktur Organisasi Styles */
+        .structure-container {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: var(--secondary);
+            border-radius: 10px;
+        }
+
+        .structure-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .structure-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .structure-position {
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .structure-name {
+            color: var(--text);
+        }
+
+        .structure-actions {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+        }
+
+        .add-structure-btn {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .structure-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Share button */
+        .share-btn {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .share-btn:hover {
+            background-color: #128C7E;
+        }
+
+        @media (max-width: 768px) {
+            th, td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+
+            .admin-login {
+                position: static;
+                margin-top: 15px;
+                text-align: center;
+            }
+
+            .admin-panel {
+                width: 95%;
+                padding: 15px;
+            }
+
+            .assign-controls {
+                flex-direction: column;
+            }
+
+            .structure-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="admin-login">
+                <button class="admin-btn" id="admin-login-btn"><i class="fas fa-user-shield"></i> Admin</button>
+            </div>
+            <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/e91fd0a8-d99d-4fe8-b4e0-06d04f34a1b8.png" alt="Logo PMR dengan palang merah dan tulisan PMR berwarna merah" class="logo">
+            <h1>JADWAL PIKET PMR</h1>
+            <p>Minggu: <span id="week-indicator">1</span></p>
+            <button id="share-wa-btn" class="share-btn"><i class="fab fa-whatsapp"></i> Bagikan ke WhatsApp</button>
+        </header>
+
+        <div class="schedule-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Hari</th>
+                        <th>Shift 1 (07.00 - 09.15)</th>
+                        <th>Shift 2 (09.15 - 11.50)</th>
+                        <th>Shift 3 (12.25 - 14.15)</th>
+                    </tr>
+                </thead>
+                <tbody id="schedule-body">
+                    <!-- Schedule will be generated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Struktur Organisasi -->
+        <div class="structure-container">
+            <h2 class="structure-title">STRUKTUR ORGANISASI PMR</h2>
+            <div id="structure-list">
+                <!-- Struktur akan diisi oleh JavaScript -->
+            </div>
+            <div class="structure-form" id="structure-form" style="display: none;">
+                <input type="text" id="structure-position" class="form-control" placeholder="Jabatan">
+                <input type="text" id="structure-name" class="form-control" placeholder="Nama">
+                <button id="save-structure-btn" class="btn btn-success">Simpan</button>
+                <button id="cancel-structure-btn" class="btn btn-danger">Batal</button>
+            </div>
+            <button id="add-structure-btn" class="btn btn-primary add-structure-btn"><i class="fas fa-plus"></i> Tambah Jabatan</button>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-overlay" id="admin-overlay"></div>
+    <div class="admin-panel" id="admin-panel">
+        <h2><i class="fas fa-user-shield"></i> Panel Admin</h2>
+        <div class="admin-controls">
+            <div class="form-group">
+                <label for="admin-password">Password Admin:</label>
+                <input type="password" id="admin-password" class="form-control" placeholder="Masukkan password">
+                <button id="login-admin-btn" class="btn btn-primary">Login</button>
+            </div>
+            
+            <div id="admin-features" style="display: none;">
+                <div class="admin-section">
+                    <h3>Kelola Anggota</h3>
+                    <div class="members-list" id="all-members-list">
+                        <!-- List of all members will be here -->
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="new-member-admin" class="form-control" placeholder="Nama anggota baru">
+                        <button id="add-member-admin" class="btn btn-success">Tambah Anggota</button>
+                    </div>
+                </div>
+
+                <div class="admin-section">
+                    <h3>Atur Penempatan Shift</h3>
+                    <div class="assign-controls">
+                        <select id="day-select" class="form-control">
+                            <option value="Senin">Senin</option>
+                            <option value="Selasa">Selasa</option>
+                            <option value="Rabu">Rabu</option>
+                            <option value="Kamis">Kamis</option>
+                            <option value="Jumat">Jumat</option>
+                        </select>
+                        <select id="shift-select" class="form-control">
+                            <option value="1">Shift 1 (07.00 - 09.15)</option>
+                            <option value="2">Shift 2 (09.15 - 11.50)</option>
+                            <option value="3">Shift 3 (12.25 - 14.15)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <select id="member-select" class="form-control">
+                            <!-- Anggota akan diisi oleh JavaScript -->
+                        </select>
+                        <button id="assign-member-btn" class="btn btn-primary">Tambah ke Shift</button>
+                    </div>
+                    <button id="generate-schedule-btn" class="btn btn-warning">Generate Jadwal Minggu Depan</button>
+                    <button id="randomize-all-btn" class="btn btn-info">Acak Semua Penempatan</button>
+                </div>
+
+                <div class="admin-section">
+                    <h3>Riwayat Perubahan</h3>
+                    <div class="history-list" id="history-list">
+                        <!-- History items will be added here -->
+                    </div>
+                    <button id="rollback-btn" class="btn btn-danger">Kembalikan ke Jadwal Sebelumnya</button>
+                </div>
+
+                <div class="admin-section">
+                    <h3>Ganti Anggota</h3>
+                    <p>Klik anggota di jadwal untuk memilih, lalu klik shift tujuan untuk memindahkan</p>
+                    <button id="close-admin-panel" class="btn btn-danger">Tutup Panel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample member data
+        let anggota = [
+            "Andi Wijaya", "Budi Santoso", "Citra Damayanti", "Dina Rahayu", 
+            "Eka Putri", "Fahmi Hakim", "Gina Permata", "Hani Kartika"
+        ];
+
+        // Sample structure data
+        let strukturPmr = [
+            { position: "Ketua", name: "Andi Wijaya" },
+            { position: "Wakil Ketua", name: "Budi Santoso" },
+            { position: "Sekretaris", name: "Citra Damayanti" },
+            { position: "Bendahara", name: "Dina Rahayu" }
+        ];
+
+        // Days of the week
+        const days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"];
+        
+        // Current week counter
+        let currentWeek = 1;
+        
+        // Password for admin
+        const ADMIN_PASSWORD = "admin123";
+        
+        // Store schedule
+        let currentSchedule = [];
+        
+        // Store schedule history
+        let scheduleHistory = [];
+
+        // Function to generate schedule
+        function generateSchedule() {
+            const schedule = days.map(day => ({
+                day,
+                shift1: [],
+                shift2: [],
+                shift3: []
+            }));
+
+            // Shuffle members for random distribution
+            const shuffledMembers = [...anggota].sort(() => Math.random() - 0.5);
+            
+            let memberIndex = 0;
+            for (const daySchedule of schedule) {
+                for (let i = 0; i < 3; i++) {
+                    if (memberIndex >= shuffledMembers.length) memberIndex = 0;
+                    daySchedule.shift1.push(shuffledMembers[memberIndex++]);
+                }
+                for (let i = 0; i < 3; i++) {
+                    if (memberIndex >= shuffledMembers.length) memberIndex = 0;
+                    daySchedule.shift2.push(shuffledMembers[memberIndex++]);
+                }
+                for (let i = 0; i < 3; i++) {
+                    if (memberIndex >= shuffledMembers.length) memberIndex = 0;
+                    daySchedule.shift3.push(shuffledMembers[memberIndex++]);
+                }
+            }
+            
+            return schedule;
+        }
+
+        // Function to completely randomize all placements
+        function randomizeAllPlacements() {
+            if (confirm('Acak semua penempatan anggota? Ini akan mengubah seluruh jadwal secara acak.')) {
+                // Save current state to history
+                saveToHistory("Acak semua penempatan");
+                
+                // Create a pool of all members
+                const allMembers = [...anggota];
+                const shuffledMembers = [...allMembers].sort(() => Math.random() - 0.5);
+                
+                let memberIndex = 0;
+                
+                // Randomize each shift
+                currentSchedule.forEach(day => {
+                    // Clear existing assignments
+                    day.shift1 = [];
+                    day.shift2 = [];
+                    day.shift3 = [];
+                    
+                    // Assign random members to each shift
+                    for (let i = 0; i < 3; i++) {
+                        if (memberIndex >= shuffledMembers.length) memberIndex = 0;
+                        day.shift1.push(shuffledMembers[memberIndex++]);
+                    }
+                    for (let i = 0; i < 3; i++) {
+                        if (memberIndex >= shuffledMembers.length) memberIndex = 0;
+                        day.shift2.push(shuffledMembers[memberIndex++]);
+                    }
+                    for (let i = 0; i < 3; i++) {
+                        if (memberIndex >= shuffledMembers.length) memberIndex = 0;
+                        day.shift3.push(shuffledMembers[memberIndex++]);
+                    }
+                });
+                
+                renderSchedule();
+                alert('Semua penempatan telah diacak!');
+            }
+        }
+
+        // Function to save current schedule to history
+        function saveToHistory(action) {
+            const timestamp = new Date().toLocaleString();
+            scheduleHistory.push({
+                schedule: JSON.parse(JSON.stringify(currentSchedule)),
+                week: currentWeek,
+                action: action,
+                timestamp: timestamp
+            });
+            
+            // Update history list
+            renderHistoryList();
+        }
+
+        // Function to render history list
+        function renderHistoryList() {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = '';
+            
+            if (scheduleHistory.length === 0) {
+                historyList.innerHTML = '<p>Tidak ada riwayat</p>';
+                return;
+            }
+            
+            // Show history in reverse order (newest first)
+            const reversedHistory = [...scheduleHistory].reverse();
+            
+            reversedHistory.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.innerHTML = `
+                    <strong>${item.action}</strong><br>
+                    <small>Minggu ${item.week} - ${item.timestamp}</small>
+                `;
+                historyList.appendChild(historyItem);
+            });
+        }
+
+        // Function to render the schedule
+        function renderSchedule() {
+            const scheduleBody = document.getElementById('schedule-body');
+            scheduleBody.innerHTML = '';
+
+            currentSchedule.forEach(daySchedule => {
+                const row = document.createElement('tr');
+                
+                // Day cell
+                const dayCell = document.createElement('td');
+                dayCell.textContent = daySchedule.day;
+                dayCell.style.fontWeight = 'bold';
+                row.appendChild(dayCell);
+                
+                // Shift cells
+                for (let shift = 1; shift <= 3; shift++) {
+                    const shiftCell = document.createElement('td');
+                    const shiftKey = `shift${shift}`;
+                    
+                    daySchedule[shiftKey].forEach(member => {
+                        const memberDiv = document.createElement('div');
+                        memberDiv.className = 'anggota-item';
+                        memberDiv.textContent = member;
+                        memberDiv.dataset.day = daySchedule.day;
+                        memberDiv.dataset.shift = shift;
+                        shiftCell.appendChild(memberDiv);
+                    });
+                    
+                    row.appendChild(shiftCell);
+                }
+                
+                scheduleBody.appendChild(row);
+            });
+        }
+
+        // Function to render all members list in admin panel
+        function renderAllMembersList() {
+            const membersList = document.getElementById('all-members-list');
+            membersList.innerHTML = '';
+            
+            if (anggota.length === 0) {
+                membersList.innerHTML = '<p>Tidak ada anggota</p>';
+                return;
+            }
+            
+            anggota.forEach((member, index) => {
+                const memberItem = document.createElement('div');
+                memberItem.className = 'member-list-item';
+                memberItem.innerHTML = `
+                    <span>${member}</span>
+                    <div class="member-actions">
+                        <button class="action-btn edit-member" data-index="${index}"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-member" data-index="${index}"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                membersList.appendChild(memberItem);
+            });
+            
+            // Update member select dropdown
+            updateMemberSelect();
+            
+            // Add event listeners for edit and delete buttons
+            document.querySelectorAll('.edit-member').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.closest('button').dataset.index;
+                    const newName = prompt('Edit nama anggota:', anggota[index]);
+                    if (newName && newName.trim() !== '') {
+                        // Update in all shifts
+                        replaceMemberInAllShifts(anggota[index], newName.trim());
+                        anggota[index] = newName.trim();
+                        renderAllMembersList();
+                        renderSchedule();
+                        // Also update in structure if exists
+                        updateMemberInStructure(anggota[index], newName.trim());
+                        renderStructure();
+                        saveToHistory(`Edit anggota: ${newName.trim()}`);
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.delete-member').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.closest('button').dataset.index;
+                    if (confirm(`Apakah Anda yakin ingin menghapus ${anggota[index]}?`)) {
+                        // Remove from all shifts first
+                        removeMemberFromAllShifts(anggota[index]);
+                        const deletedMember = anggota[index];
+                        anggota.splice(index, 1);
+                        renderAllMembersList();
+                        renderSchedule();
+                        // Also remove from structure if exists
+                        removeMemberFromStructure(deletedMember);
+                        renderStructure();
+                        saveToHistory(`Hapus anggota: ${deletedMember}`);
+                    }
+                });
+            });
+        }
+
+        // Function to replace member in all shifts
+        function replaceMemberInAllShifts(oldName, newName) {
+            currentSchedule.forEach(day => {
+                day.shift1 = day.shift1.map(m => m === oldName ? newName : m);
+                day.shift2 = day.shift2.map(m => m === oldName ? newName : m);
+                day.shift3 = day.shift3.map(m => m === oldName ? newName : m);
+            });
+        }
+
+        // Function to update member select dropdown
+        function updateMemberSelect() {
+            const memberSelect = document.getElementById('member-select');
+            memberSelect.innerHTML = '';
+            
+            anggota.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member;
+                option.textContent = member;
+                memberSelect.appendChild(option);
+            });
+        }
+
+        // Function to remove member from all shifts
+        function removeMemberFromAllShifts(memberName) {
+            currentSchedule.forEach(day => {
+                day.shift1 = day.shift1.filter(m => m !== memberName);
+                day.shift2 = day.shift2.filter(m => m !== memberName);
+                day.shift3 = day.shift3.filter(m => m !== memberName);
+            });
+        }
+
+        // Function to render structure
+        function renderStructure() {
+            const structureList = document.getElementById('structure-list');
+            structureList.innerHTML = '';
+            
+            if (strukturPmr.length === 0) {
+                structureList.innerHTML = '<p>Belum ada struktur organisasi</p>';
+                return;
+            }
+            
+            strukturPmr.forEach((item, index) => {
+                const structureItem = document.createElement('div');
+                structureItem.className = 'structure-item';
+                structureItem.innerHTML = `
+                    <div class="structure-position">${item.position}</div>
+                    <div class="structure-name">${item.name}</div>
+                    <div class="structure-actions">
+                        <button class="action-btn edit-structure" data-index="${index}"><i class="fas fa-edit"></i></button>
+                        <button class="action-btn delete-structure" data-index="${index}"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+                structureList.appendChild(structureItem);
+            });
+            
+            // Add event listeners for edit and delete buttons
+            document.querySelectorAll('.edit-structure').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.closest('button').dataset.index;
+                    editStructure(index);
+                });
+            });
+            
+            document.querySelectorAll('.delete-structure').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = e.target.closest('button').dataset.index;
+                    if (confirm(`Apakah Anda yakin ingin menghapus ${strukturPmr[index].position}?`)) {
+                        strukturPmr.splice(index, 1);
+                        renderStructure();
+                    }
+                });
+            });
+        }
+
+        // Function to edit structure
+        function editStructure(index) {
+            const form = document.getElementById('structure-form');
+            const positionInput = document.getElementById('structure-position');
+            const nameInput = document.getElementById('structure-name');
+            const saveBtn = document.getElementById('save-structure-btn');
+            
+            // Set current values
+            positionInput.value = strukturPmr[index].position;
+            nameInput.value = strukturPmr[index].name;
+            
+            // Show form
+            form.style.display = 'flex';
+            document.getElementById('add-structure-btn').style.display = 'none';
+            
+            // Set save button to update existing
+            saveBtn.onclick = function() {
+                if (positionInput.value.trim() && nameInput.value.trim()) {
+                    strukturPmr[index] = {
+                        position: positionInput.value.trim(),
+                        name: nameInput.value.trim()
+                    };
+                    renderStructure();
+                    cancelEditStructure();
+                }
+            };
+        }
+
+        // Function to cancel structure edit
+        function cancelEditStructure() {
+            document.getElementById('structure-form').style.display = 'none';
+            document.getElementById('add-structure-btn').style.display = 'block';
+            document.getElementById('structure-position').value = '';
+            document.getElementById('structure-name').value = '';
+        }
+
+        // Function to update member in structure
+        function updateMemberInStructure(oldName, newName) {
+            strukturPmr.forEach(item => {
+                if (item.name === oldName) {
+                    item.name = newName;
+                }
+            });
+        }
+
+        // Function to remove member from structure
+        function removeMemberFromStructure(memberName) {
+            strukturPmr = strukturPmr.filter(item => item.name !== memberName);
+        }
+
+        // Function to share schedule to WhatsApp
+        function shareToWhatsApp() {
+            let shareText = `*Jadwal Piket PMR Minggu ${currentWeek}*\n\n`;
+            
+            currentSchedule.forEach(daySchedule => {
+                shareText += `*${daySchedule.day}*\n`;
+                shareText += `- Shift 1 (07.00-09.15): ${daySchedule.shift1.join(', ')}\n`;
+                shareText += `- Shift 2 (09.15-11.50): ${daySchedule.shift2.join(', ')}\n`;
+                shareText += `- Shift 3 (12.25-14.15): ${daySchedule.shift3.join(', ')}\n\n`;
+            });
+            
+            // Add structure information
+            shareText += `*Struktur Organisasi PMR*\n`;
+            strukturPmr.forEach(item => {
+                shareText += `- ${item.position}: ${item.name}\n`;
+            });
+            
+            // Encode for WhatsApp URL
+            const encodedText = encodeURIComponent(shareText);
+            window.open(`https://wa.me/?text=${encodedText}`, '_blank');
+        }
+
+        // Initialize the schedule
+        currentSchedule = generateSchedule();
+        saveToHistory("Jadwal awal dibuat");
+        renderSchedule();
+        renderStructure();
+        
+        // Member selection and movement
+        let selectedMember = null;
+        
+        document.addEventListener('click', (e) => {
+            const memberItem = e.target.closest('.anggota-item');
+            if (!memberItem) {
+                // Click outside - deselect
+                if (selectedMember) {
+                    selectedMember.classList.remove('selected');
+                    selectedMember = null;
+                }
+                return;
+            }
+            
+            if (selectedMember) {
+                // Second click - move member
+                if (selectedMember !== memberItem) {
+                    const sourceDay = selectedMember.dataset.day;
+                    const sourceShift = selectedMember.dataset.shift;
+                    const targetDay = memberItem.dataset.day;
+                    const targetShift = memberItem.dataset.shift;
+                    const memberName = selectedMember.textContent;
+                    
+                    // Save to history before making changes
+                    saveToHistory(`Pemindahan anggota: ${memberName}`);
+                    
+                    // Find source and target in schedule
+                    const sourceDayIndex = currentSchedule.findIndex(d => d.day === sourceDay);
+                    const targetDayIndex = currentSchedule.findIndex(d => d.day === targetDay);
+                    
+                    if (sourceDayIndex !== -1 && targetDayIndex !== -1) {
+                        // Remove from source
+                        currentSchedule[sourceDayIndex][`shift${sourceShift}`] = 
+                            currentSchedule[sourceDayIndex][`shift${sourceShift}`].filter(m => m !== memberName);
+                        
+                        // Add to target
+                        currentSchedule[targetDayIndex][`shift${targetShift}`].push(memberName);
+                        
+                        // Re-render
+                        renderSchedule();
+                    }
+                }
+                selectedMember.classList.remove('selected');
+                selectedMember = null;
+            } else {
+                // First click - select member
+                selectedMember = memberItem;
+                memberItem.classList.add('selected');
+            }
+        });
+
+        // Admin panel functionality
+        document.getElementById('admin-login-btn').addEventListener('click', () => {
+            document.getElementById('admin-overlay').style.display = 'block';
+            document.getElementById('admin-panel').style.display = 'block';
+        });
+
+        document.getElementById('login-admin-btn').addEventListener('click', () => {
+            const password = document.getElementById('admin-password').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('admin-features').style.display = 'block';
+                document.getElementById('admin-password').style.display = 'none';
+                document.getElementById('login-admin-btn').style.display = 'none';
+                renderAllMembersList();
+                renderHistoryList();
+            } else {
+                alert('Password salah!');
+            }
+        });
+
+        document.getElementById('close-admin-panel').addEventListener('click', () => {
+            closeAdminPanel();
+        });
+
+        document.getElementById('admin-overlay').addEventListener('click', () => {
+            closeAdminPanel();
+        });
+
+        function closeAdminPanel() {
+            document.getElementById('admin-overlay').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'none';
+            document.getElementById('admin-features').style.display = 'none';
+            document.getElementById('admin-password').style.display = 'block';
+            document.getElementById('login-admin-btn').style.display = 'block';
+            document.getElementById('admin-password').value = '';
+        }
+
+        // Add member from admin panel
+        document.getElementById('add-member-admin').addEventListener('click', () => {
+            const newMember = document.getElementById('new-member-admin').value.trim();
+            if (newMember && !anggota.includes(newMember)) {
+                anggota.push(newMember);
+                document.getElementById('new-member-admin').value = '';
+                renderAllMembersList();
+                renderSchedule();
+                saveToHistory(`Tambah anggota: ${newMember}`);
+                alert('Anggota berhasil ditambahkan!');
+            } else if (anggota.includes(newMember)) {
+                alert('Anggota sudah ada!');
+            }
+        });
+
+        // Assign member to shift
+        document.getElementById('assign-member-btn').addEventListener('click', () => {
+            const day = document.getElementById('day-select').value;
+            const shift = document.getElementById('shift-select').value;
+            const member = document.getElementById('member-select').value;
+            
+            const dayIndex = currentSchedule.findIndex(d => d.day === day);
+            if (dayIndex !== -1) {
+                // Save to history before making changes
+                saveToHistory(`Tambah ${member} ke ${day} Shift ${shift}`);
+                
+                currentSchedule[dayIndex][`shift${shift}`].push(member);
+                renderSchedule();
+                alert(`${member} berhasil ditambahkan ke ${day} Shift ${shift}`);
+            }
+        });
+
+        // Generate new schedule
+        document.getElementById('generate-schedule-btn').addEventListener('click', () => {
+            if (confirm('Generate jadwal baru untuk minggu depan?')) {
+                currentWeek++;
+                document.getElementById('week-indicator').textContent = currentWeek;
+                currentSchedule = generateSchedule();
+                renderSchedule();
+                saveToHistory("Jadwal minggu baru");
+                alert('Jadwal minggu baru berhasil dibuat!');
+            }
+        });
+
+        // Randomize all placements
+        document.getElementById('randomize-all-btn').addEventListener('click', randomizeAllPlacements);
+
+        // Rollback to previous version
+        document.getElementById('rollback-btn').addEventListener('click', () => {
+            if (scheduleHistory.length < 1) {
+                alert('Tidak ada riwayat untuk di-rollback!');
+                return;
+            }
+            
+            // Get previous version
+            const previousVersion = scheduleHistory[scheduleHistory.length - 1];
+            
+            if (confirm(`Kembalikan ke jadwal sebelumnya?`)) {
+                currentSchedule = JSON.parse(JSON.stringify(previousVersion.schedule));
+                renderSchedule();
+                alert('Rollback berhasil!');
+            }
+        });
+
+        // Share to WhatsApp
+        document.getElementById('share-wa-btn').addEventListener('click', () => {
+            shareToWhatsApp();
+        });
+
+        // Structure organization functionality
+        document.getElementById('add-structure-btn').addEventListener('click', () => {
+            const form = document.getElementById('structure-form');
+            const positionInput = document.getElementById('structure-position');
+            const nameInput = document.getElementById('structure-name');
+            const saveBtn = document.getElementById('save-structure-btn');
+            
+            // Clear inputs
+            positionInput.value = '';
+            nameInput.value = '';
+            
+            // Show form
+            form.style.display = 'flex';
+            document.getElementById('add-structure-btn').style.display = 'none';
+            
+            // Set save button to add new
+            saveBtn.onclick = function() {
+                if (positionInput.value.trim() && nameInput.value.trim()) {
+                    strukturPmr.push({
+                        position: positionInput.value.trim(),
+                        name: nameInput.value.trim()
+                    });
+                    renderStructure();
+                    cancelEditStructure();
+                }
+            };
+        });
+
+        document.getElementById('cancel-structure-btn').addEventListener('click', () => {
+            cancelEditStructure();
+        });
+
+        // Initialize member select dropdown
+        updateMemberSelect();
+    </script>
+</body>
+</html>
